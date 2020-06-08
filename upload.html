@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="description" content="upload file">
+        <title>Upload</title>
+        <!-- Bootstrap core CSS -->
+        <link href="css/bootstrap.css" rel="stylesheet">
+        
+        <script src="js/amazon-cognito-identity.min.js"></script>  
+	    <script src="js/config.js"></script>
+    </head>
+    <body>
+        
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+            <a class="navbar-brand" id="username"></a>
+            <button class="btn btn-outline-success my-2 my-sm-0" onclick="signOut()">Logout</button>
+        </nav>
+        
+        <div class="container" style="margin-top: 80px">
+            <div class="input-group">
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" accept="image/*" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01" onchange="importFile()" >
+                    <label class="custom-file-label" for="inputGroupFile01" id="choosefile">Choose file</label>
+                    
+                </div>
+                
+            </div>
+            <button style="margin-top: 20px" class="btn btn-lg btn-primary btn-block" type="button" onclick="uploadButton()" >Upload</button>
+        </div>
+        
+        <div class="container" style="margin-top: 50px">
+            <div class="input-group mb-3">
+              <input type="text" class="form-control" id="tags" placeholder="Tags" aria-label="Tags" aria-describedby="basic-addon2">
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" onclick="fetchdetails()">Search</button>
+              </div>
+            </div>
+        </div>
+        
+        <div class="container" style="margin-top: 60px">
+            <div id="tagsresponse"></div>
+        </div>
+        <script>
+            var data = {
+                UserPoolId : _config.cognito.userPoolId,
+                ClientId : _config.cognito.clientId
+            };
+            var userPool = new AmazonCognitoIdentity.CognitoUserPool(data);
+            var cognitoUser = userPool.getCurrentUser();
+
+            window.onload = function(){
+            if (cognitoUser != null) {
+                cognitoUser.getSession(function(err, session) {
+                    if (err) {
+                        alert(err);
+                        return;
+                    }
+                    console.log('session validity: ' + session.isValid());
+                    //Set the profile info
+                    cognitoUser.getUserAttributes(function(err, result) {
+                        if (err) {
+                            console.log(err);
+                            return;
+                        }
+                        console.log(result);
+                        document.getElementById("username").innerHTML = "Welcome "+result[2].getValue()+" !";	
+                    });			
+
+                });
+            }else{
+                window.location = "index.html";
+            }
+        }
+        
+        function signOut(){
+            if (cognitoUser != null) {
+                cognitoUser.signOut();
+                alert("Sign Out Successfully!!");
+                window.location = "index.html";
+            }
+        }
+        
+        var myFile=null;
+        function importFile(){
+            myFile = document.querySelector('input[type=file]').files[0];
+            document.getElementById("choosefile").innerHTML=myFile.name;
+        }
+            
+        function uploadButton(){
+            if(myFile==null){
+                alert("choose a file");
+            }else{
+                //alert("under construction");
+                var file = myFile;
+                var reader = new FileReader();
+                reader.onloadend = function() {
+                
+                   calluploadfun(reader.result);
+                    //console.log('RESULT', reader.result)
+                }
+                reader.readAsDataURL(file);
+                document.getElementById("choosefile").innerHTML="Choose file";
+            }
+        }
+           
+        function calluploadfun(r){
+            console.log(r.substring(23));
+            
+            var upload = {
+                        "name":myFile.name,
+                        "image":r.substring(23)
+                    };
+                    
+                    console.log(upload);
+                    (async () => {
+                        const rawResponse = await fetch('https://k7uqxl193e.execute-api.us-east-1.amazonaws.com/v1/api',{
+                            method:'POST',
+                            headers:{
+                                'Accept':'application/json',
+                                'Content-Type':'application/json'
+                            },
+                            body: JSON.stringify(upload)
+                        });
+                        const content = await rawResponse.json();
+                        alert(content +" "+ myFile.name);
+                        console.log(content);
+                    })();
+        }
+            
+        function fetchdetails(){
+            
+            //alert("under construction");
+            
+            var tags = document.getElementById("tags").value;
+            //console.log(tags);
+            var tagsList = tags.split(" ");
+            //console.log(tagsList);
+            (async () => {
+                const rawResponse = await fetch('https://tjlh2wieti.execute-api.us-east-1.amazonaws.com/v1/search/',{
+                    method:'POST',
+                    //mode:'no-cors',
+                    headers:{
+                        'Accept':'application/json',
+                        'Content-Type':'application/json'
+                    },
+                    body: JSON.stringify({"tags": tagsList})
+                });
+                
+                const content = await rawResponse.json();
+                
+                if(content["links"].length==0){
+                    //console.log("empty");
+                    var tagsresponse = document.getElementById("tagsresponse");
+                    
+                    // to remove the child node if exists
+                    while (tagsresponse.childNodes.length>0){
+                        tagsresponse.removeChild(tagsresponse.childNodes[0]);   
+                    }
+                    
+                    
+                    alert("No Image Found")
+                }
+                else{
+                    var tagsresponse = document.getElementById("tagsresponse");
+                    
+                    // to remove the child node if exists
+                    while (tagsresponse.childNodes.length>0){
+                        tagsresponse.removeChild(tagsresponse.childNodes[0]);   
+                    }
+                    
+                    // to write new valuse in the web page
+                    for(var i=0; i<content["links"].length;i++){
+
+                        var a = document.createElement('a');
+                        a.href = content["links"][i];
+                        a.id = i;
+                        var li = document.createElement('li');
+                        li.appendChild(a);
+
+                        var ul = document.createElement('ul');
+                        ul.appendChild(li);
+
+                        tagsresponse.appendChild(ul);
+                        document.getElementById(i).innerHTML=content["links"][i];
+                    }
+                }
+                //console.log(content);
+            })();
+        }
+
+    </script>
+        
+    </body>
+</html>
