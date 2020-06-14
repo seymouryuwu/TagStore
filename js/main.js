@@ -15,7 +15,7 @@ var UserAPP = window.UserAPP || {};
             }
         } else {
             if (redirectOnUnrec) {
-                window.location = 'index.html';
+                window.location = '404.html';
             }
         }
     };

@@ -27,7 +27,7 @@ window.onload = function() {
 
         });
     } else {
-        window.location = "index.html";
+        window.location = '404.html';
     }
 }
 
@@ -210,6 +210,7 @@ function fetchdetails() {
                 #tagsresponse {
                     width: 100%;
                     margin: auto;
+                    padding:2%;
                 }
 
                 #tagsresponse figure {

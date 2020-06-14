@@ -33,6 +33,11 @@
   font-family: Ubuntu-Bold;
   src: url('fonts/Ubuntu-Bold.ttf'); 
 }
+
+/* * {
+ 	border: 1px solid black; 
+} */
+
 a.hiddenanchor{
 	display: none;
 }
