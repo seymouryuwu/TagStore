@@ -4,6 +4,7 @@ var data = {
 };
 var userPool = new AmazonCognitoIdentity.CognitoUserPool(data);
 var cognitoUser = userPool.getCurrentUser();
+var identityToken;
 
 window.onload = function() {
     if (cognitoUser != null) {
@@ -12,8 +13,9 @@ window.onload = function() {
                 alert(err);
                 return;
             }
-            console.log('session validity: ' + session.isValid());
+            // console.log('session validity: ' + session.isValid());
             //Set the profile info
+            identityToken = session.getIdToken().getJwtToken();
             cognitoUser.getUserAttributes(function(err, result) {
                 if (err) {
                     console.log(err);
@@ -32,7 +34,7 @@ window.onload = function() {
 function signOut() {
     if (cognitoUser != null) {
         cognitoUser.signOut();
-        alert("Sign Out Successfully!!");
+        alert("Signing out !!!");
         window.location = "index.html";
     }
 }
@@ -62,26 +64,62 @@ function uploadImage() {
 }
 
 function execUpload(r) {
-    console.log(r.substring(23));
+    //console.log(r.substring(23)); 
 
     var upload = {
         "name": myFile.name,
         "image": r.substring(23)
     };
+    
+    ///// editing here
+    var cid;
+    var uploadresponse = document.getElementById("uploadresponse");
+    while (uploadresponse.childNodes.length > 4) {
+        uploadresponse.removeChild(uploadresponse.childNodes[0]);
+    }
+    var len = uploadresponse.childNodes.length;
+    if(len==0){
+        var para = document.createElement('p');
+        cid = 100000;
+        para.id = cid;
+        uploadresponse.appendChild(para);
 
+    }else{
+        var idn = uploadresponse.childNodes[len-1].id;
+        console.log(idn);
+        var para = document.createElement('p');
+        cid = idn+1;
+        para.id = cid;
+        uploadresponse.appendChild(para);
+
+    }
+    document.getElementById(cid).innerHTML = myFile.name+"  --> Processing".italics();
+    document.getElementById(cid).style.color = "red";
+    document.getElementById(cid).style.fontWeight = "bold";
+    /// till here
+    
     console.log(upload);
     (async () => {
         const rawResponse = await fetch('https://ydi233j2t0.execute-api.us-east-1.amazonaws.com/v1/upload', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization':identityToken
             },
             body: JSON.stringify(upload)
         });
+        
         const content = await rawResponse.json();
-        alert(content + " " + myFile.name);
-        console.log(content);
+        if (rawResponse.status === 200){
+            document.getElementById(cid).innerHTML = myFile.name+"  --> Successfully Uploaded".italics();
+            document.getElementById(cid).style.color = "green";
+            //alert(content + " " + myFile.name);
+            console.log(content);
+        }else {
+            document.getElementById(cid).innerHTML = myFile.name+"  --> Upload Unsuccessful".italics();
+            document.getElementById(cid).style.color = "red";
+        }
     })();
 }
 
@@ -102,7 +140,8 @@ function fetchdetails() {
             //mode:'no-cors',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization':identityToken
             },
             body: JSON.stringify({
                 "tags": tagsList
@@ -119,9 +158,7 @@ function fetchdetails() {
             while (tagsresponse.childNodes.length > 0) {
                 tagsresponse.removeChild(tagsresponse.childNodes[0]);
             }
-
-
-            alert("No Image Found")
+            alert("No image found")
         } else {
             var tagsresponse = document.getElementById("tagsresponse");
 
@@ -132,18 +169,80 @@ function fetchdetails() {
 
             // to write new valuse in the web page
             for (var i = 0; i < content["links"].length; i++) {
+                
+                var link = document.createElement('a');
+                link.href = content["links"][i];
+                
+                // var a = document.createElement('img');
+                // a.src = content["links"][i];
+                // a.id = i;
+                var card = document.createElement('figure');
+                var img = document.createElement('img');
+                img.src = content["links"][i];
+                img.id = i;
+                card.appendChild(img);
+                link.appendChild(card);
 
-                var a = document.createElement('a');
-                a.href = content["links"][i];
-                a.id = i;
-                var li = document.createElement('li');
-                li.appendChild(a);
+                
+                //var li = document.createElement('li');
+                //li.appendChild(a);
 
-                var ul = document.createElement('ul');
-                ul.appendChild(li);
+                //var ul = document.createElement('ul');
+                //ul.appendChild(li);
 
-                tagsresponse.appendChild(ul);
-                document.getElementById(i).innerHTML = content["links"][i];
+                //tagsresponse.appendChild(ul);
+                //a.class = "col-md-4";
+                tagsresponse.appendChild(link);
+
+                const style = document.createElement('style');
+
+                // add CSS styles
+                style.innerHTML = `
+
+                #background {
+                    height: 700px;
+                    width: 100%;
+                    background-image: url(http://garchitecture.ca/php/images/headers/wood.jpg);
+                    padding-top: 20px;
+                    overflow-y: scroll;
+                }
+
+                #tagsresponse {
+                    width: 100%;
+                    margin: auto;
+                }
+
+                #tagsresponse figure {
+                    float: left;
+                    position: relative;
+                    background-color: white;
+                    text-align: center;
+                    font-size: 15px;
+                    padding: 10px;
+                    margin: 1%;
+                    height:380px;
+                    box-shadow: 1px 2px 3px black;
+                    -webkit-transform : rotate(-10deg);
+                    z-index: 1;
+                }
+
+                #tagsresponse figure img {
+                    height:200px;
+                    width:300px;
+                }
+                #tagsresponse figure:hover {
+                    box-shadow: 5px 10px 100px black;
+                    -webkit-transform: scale(1.1,1.1);
+                    z-index: 20;
+                  }
+                `;
+
+                //document.getElementById(i).innerHTML = content["links"][i];
+                document.head.appendChild(style);
+                // document.getElementById(i).classList.add("img-thumbnail");
+                // // document.getElementById(i).style.width = "500px";
+                document.getElementById(i).style.height = "300px";
+                
             }
         }
         //console.log(content);
