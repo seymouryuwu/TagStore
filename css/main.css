@@ -54,9 +54,25 @@ a.hiddenanchor{
 
 
 /**** general text styling ****/
-#wrapper a{
+/* #wrapper a{
+	
+	text-decoration: none;
+} */
+
+.forgot_pass {
+	position: relative;
+	left: -31%;
+	font-family: Ubuntu-Bold;
+}
+
+.forgot_pass:hover {
+	cursor: pointer;
 	color: rgb(95, 155, 198);
-	text-decoration: underline;
+}
+
+.passcond {
+	font-family: Ubuntu-Bold;
+	color: #000;
 }
 
 #wrapper h1{
@@ -177,7 +193,7 @@ input {
 }
 
 /*styling both submit buttons */
-.login_button,.signin_button {
+.login_button,.signin_button,.submit_button {
 	width: 30%;
 	position: relative;
 	left:70%;
@@ -209,13 +225,16 @@ input {
 	        transition: all 0.2s linear;
 }
 .login_button:hover,
-.signin_button:hover {
+.signin_button:hover,
+.submit_button:hover {
 	background: rgb(74, 179, 198);
 }
 .login_button:active,
 .signin_button:active,
+.submit_button:active,
 .signin_button:focus,
-.login_button:focus{
+.login_button:focus,
+.submit_button:focus{
 	background: rgb(40, 137, 154);
 	position: relative;
 	top: 1px;

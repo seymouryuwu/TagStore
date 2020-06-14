@@ -27,17 +27,28 @@
                         <div id="login" class="animate form">
                             <form autocomplete="on" id="logform"> 
                                 <h1>Log in</h1> 
-                                <p> 
+                                <p class="email"> 
                                     <label for="username" class="uname"> Your email </label>
                                     <input id="username" name="username" required="required" type="text" placeholder="eg. mymailid@mail.com"/>
                                 </p>
                                 <p> 
                                     <label for="password" class="youpasswd"> Your password </label>
-                                    <input id="password" name="password" required="required" type="password" placeholder="eg. X8df!90EO" maxlength="15"/> 
+                                    <input id="password" name="password" required="required" type="password" placeholder="eg. X8df!90EO" minlength="8"/> 
                                 </p>
-                                <p> 
-                                    <button class="login_button" type="button" value="Login" onclick="window.UserAPP.login()" >Login</button> 
-								</p>
+                                <p class="confirmpass"> 
+                                    <label for="confirmpass" class="confirmpass"> Confirm password </label>
+                                    <input id="confirmpass" name="confirmpass" required="required" type="password" placeholder="eg. X8df!90EO" minlength="8"/> 
+                                </p>
+                                <p class="passcond">
+                                    Password must contain a lower case letter<br>
+                                    Password must contain an upper case letter<br>
+                                    Password must contain a special character<br>
+                                    Password must contain a number<br>
+                                    Password must contain at least 8 characters
+                                </p>
+                                    <button class="login_button" type="button" value="Login" onclick="window.UserAPP.login()" >Login</button>
+                                    <button class="submit_button" type="button" value="submit" onclick="window.UserAPP.confirmPassword()" >Submit</button>  
+                                    <a class="forgot_pass" onclick="window.UserAPP.forgotpass()">Forgot Password ?</a>
                                 <p class="change_link">
 									Not a member yet ?
 									<a href="#toregister" class="to_login">Sign Up</a>
@@ -62,11 +73,11 @@
                                 </p>
                                 <p> 
                                     <label for="passwordsignup" class="youpasswd">Password </label>
-                                    <input id="passwordsignup" name="passwordsignup" required="required" type="password" placeholder="eg. X8df!90EO" maxlength="15"/>
+                                    <input id="passwordsignup" name="passwordsignup" required="required" type="password" placeholder="eg. X8df!9" minlength="8"/>
                                 </p>
                                 <p> 
                                     <label for="passwordsignup_confirm" class="youpasswd">Confirm Password </label>
-                                    <input id="passwordsignup_confirm" name="passwordsignup_confirm" required="required" type="password" placeholder="eg. X8df!90EO" maxlength="15"/>
+                                    <input id="passwordsignup_confirm" name="passwordsignup_confirm" required="required" type="password" placeholder="eg. X8df!9" minlength="8"/>
                                 </p>
                                 <button  class="signin_button" type="button" value="Sign up" onclick="window.UserAPP.signup()">Sign up</button> 
                                 <p id="toast">Please check you email for the verification link. Thank you !</p>

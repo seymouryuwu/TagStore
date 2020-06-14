@@ -6,6 +6,14 @@ var UserAPP = window.UserAPP || {};
         ClientId : _config.cognito.clientId 
     };	
     var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+    var verificationCode = "";
+
+    window.onload = function() {
+        $("#toast").hide();
+        $(".confirmpass").hide();
+        $(".passcond").hide();
+        $(".submit_button").hide();
+    }
 
     UserAPP.checkLogin = function (redirectOnRec, redirectOnUnrec) {
         var cognitoUser = userPool.getCurrentUser();
@@ -53,6 +61,62 @@ var UserAPP = window.UserAPP || {};
             }
         });
     };
+    UserAPP.forgotpass = function () {
+        if ($('#username').val()!="")
+            {
+                var userData = {
+                    Username : $('#username').val(),
+                    Pool : userPool,
+                };
+                var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+                cognitoUser.forgotPassword({
+                    onSuccess: function (result) {
+                        console.log('call result: ' + result);
+                    },
+                    onFailure: function(err) {
+                        alert(err.message);
+
+                    },
+                    inputVerificationCode() {
+                        while(verificationCode.length != 6){
+                            verificationCode = prompt('Please input verification code' ,'');
+                            break;
+                        }
+                        $(".email").hide();
+                        $(".login_button").hide();
+                        $(".forgot_pass").hide();
+                        $(".confirmpass").show();
+                        $(".passcond").show();
+                        $(".submit_button").show();
+                    }
+                });
+            }else{
+                alert("Please enter the registered email");
+                $('#username').focus();
+            }
+    }
+
+    UserAPP.confirmPassword = function () {
+        var username = $('#username').val();
+        var userData = {
+            Username: username,
+            Pool: userPool
+        };
+        var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+        
+        return new Promise((resolve, reject) => {
+            cognitoUser.confirmPassword(verificationCode, $('#password').val(), {
+                onFailure(err) {
+                    reject(err);
+                },
+                onSuccess() {
+                    alert("Success ! You have reset your password");
+                    resolve();
+                    window.location = "index.html";
+                },
+            });
+        });
+    }
 
     UserAPP.logout = function () {
         var cognitoUser = userPool.getCurrentUser();
@@ -63,10 +127,6 @@ var UserAPP = window.UserAPP || {};
     UserAPP.hide_toast = function () {
         $("#regform").trigger("reset");
         $("#logform").trigger("reset");
-        $("#toast").hide();
-    }
-
-    window.onload = function() {
         $("#toast").hide();
     }
 
