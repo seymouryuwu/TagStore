@@ -85,6 +85,7 @@ var UserAPP = window.UserAPP || {};
                         $(".email").hide();
                         $(".login_button").hide();
                         $(".forgot_pass").hide();
+                        $(".change_link").hide();
                         $(".confirmpass").show();
                         $(".passcond").show();
                         $(".submit_button").show();
