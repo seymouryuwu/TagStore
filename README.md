@@ -24,3 +24,9 @@ Created seperate branches for each of your tasks. The branches are prefixed with
 5. `git checkout <your-branch-name>` Switch the working branch from master to your respective branches.
 6. After you make any changes, be sure to commit them to your branches by using `git add .` and `git commit`.
 7. To push all your local changes to github `git push origin <your-branch-name>`
+
+### Instructions to run the application.
+1. The application is deployed in https://prod.daac98mgxflqn.amplifyapp.com
+2. The account is validated using a validation code sent to the registered e-mail address.
+3. The image detection makes use of yolo tiny version so there are chances that few images do not have any objects detected in them.
+
